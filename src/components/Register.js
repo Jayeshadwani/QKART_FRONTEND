@@ -49,33 +49,37 @@ const Register = () => {
 
 
   const register = async (formData) => {
-    
     try
     {
-      setLoading(true)     
+      
       if(validateInput(formData))
       {
-        await axios.post(config.endpoint+"/auth/register",formData)
+        setLoading(true)
+        await axios.post(config.endpoint+"/auth/register",{
+          username : formData.username,
+          password : formData.password
+        })
         setFormData({
         username : "",
         password : "",
         confirmPassword : ""
         });
+        setLoading(false)
+        enqueueSnackbar("Registered successfully ",{ variant : "success"})    
       }
       
-      setLoading(false)
-      
-      enqueueSnackbar("Registered successfully",{ variant : "success"})
     }
     catch(e)
     {
       setLoading(false)
       if(e.response && e.response.status === 400 )
-      {
+      { 
         enqueueSnackbar(e.response.data.message,{variant:"error"})
       }
-      
-      enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.",{variant:"error"})
+      else
+      {
+        enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.",{variant:"error"})
+      }
     }
   };
 
@@ -98,9 +102,19 @@ const Register = () => {
    * -    Check that confirmPassword field has the same value as password field - Passwords do not match
    */
   const validateInput = (data) => {
+    if(data.username.length === 0)
+    {
+      enqueueSnackbar("Username is required field",{variant:"warning"})
+      return false;
+    }
     if(data.username.length < 6)
     {
       enqueueSnackbar("Username must be atleast 6 characters",{variant:"warning"})
+      return false;
+    }
+    if(data.password.length === 0)
+    {
+      enqueueSnackbar("Password is required field",{variant:"warning"})
       return false;
     }
     if(data.password.length < 6)
