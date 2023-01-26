@@ -13,8 +13,6 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
   const routeToLogin = () => history.push("/login")
   const routeToRegister = () => history.push("/register")
 
-  console.log(username)
-
   const handleLogOut = () =>
   {
     localStorage.setItem("username","");

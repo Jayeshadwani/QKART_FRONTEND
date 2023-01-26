@@ -1,4 +1,3 @@
-import { ThemeProvider } from "@emotion/react";
 import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
@@ -203,7 +202,6 @@ const Login = () => {
       </Box>
       <Footer />
     </Box>
-    // </ThemeProvider>
   );
 };
 
