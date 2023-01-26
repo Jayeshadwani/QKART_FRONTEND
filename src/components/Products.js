@@ -30,10 +30,9 @@ import ProductCard  from "./ProductCard";
 
 const Products = () => {
   const { enqueueSnackbar } = useSnackbar();
-  const [loading,setLoading] = useState(true)
-  let productsList = []
-  let productCards = []
-
+  const [loading,setLoading] = useState(1)
+  const [productsList,setProductsList] = useState([])
+  const [debounceTimeout,setDebounceTimeout] = useState(0)
 
 
 
@@ -76,20 +75,39 @@ const Products = () => {
    */
 
 
-  const performAPICall = async () => 
+  const performAPICall = async (searchText) => 
   {
     try
     {
-      const url = config.endpoint+'/products'
-      productsList = await axios.get(url).then(res => res.data).then(products => Array.from(products))
-      // console.log(productsList)
-      setLoading(false)
+      let url = null
+      if(searchText !== undefined)
+      {
+        setLoading(1)
+        url = `${config.endpoint}/products/search?value=${searchText}`
+      }
+      else
+      {
+        url = `${config.endpoint}/products`
+      }
+      
+      let res = await axios.get(url).then(res => res.data).then(products => Array.from(products))
+      setProductsList(res)
+      setLoading(0)
       return productsList;
     }
     catch(e)
     {
-      setLoading(false)
-      enqueueSnackbar("Might be some issue with backend server, Please try to refresh the page",{varaint:"error"})
+      setLoading(0)
+      if(e.response.status === 404)
+      {
+        enqueueSnackbar("Nothing matches the search..", {varaint:"error"})  
+        setProductsList([])
+      }
+      else
+      { 
+        enqueueSnackbar(e.response.data.message,{varaint:"error"})
+      }
+      
     }
     
   };
@@ -108,7 +126,19 @@ const Products = () => {
    * API endpoint - "GET /products/search?value=<search-query>"
    *
    */
-  const performSearch = async (text) => {
+  const performSearch = async (text) => 
+  {
+    // Perform api call and pass searchString as parameter and render productsList accordingly
+    try
+    {
+      const list = performAPICall(text)
+      return list
+    }
+    catch(e)
+    {
+      enqueueSnackbar(e.response.data.message,{varaint:"error"})
+    }
+    
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
@@ -123,21 +153,47 @@ const Products = () => {
    *    Timer id set for the previous debounce call
    *
    */
-  const debounceSearch = (event, debounceTimeout) => {
-  };
-
+  const debounceSearch = (event, debounceTimeout) => 
+  {
+    if(debounceTimeout !== 0)
+    {
+      clearTimeout(debounceTimeout)
+    }
+    const newTime = setTimeout(() => {
+      performSearch(event.target.value)
+    },1000)
+    
+    setDebounceTimeout(newTime)
+  }
 
   useEffect( () =>  
   {
-    setLoading(true)
+    setLoading(1)
     performAPICall()
-    // generateCards(productsList)
   },[])  
 
   return (
     <div>
-      <Header>
-        {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
+      <Header hasHiddenAuthButtons={false} children={
+      <TextField
+       className="search-desktop"
+       fullWidth
+       sx= {{ width : 500 }}
+       InputProps={{
+        endAdornment :(
+          <InputAdornment position="start">
+             <Search color="primary"></Search>
+          </InputAdornment>
+        ) 
+       }}
+       placeholder="Search for items/categories"
+       onChange={(e) => debounceSearch(e,debounceTimeout)}
+       name="search"
+       />
+       }
+       >
+        {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display- search bar in the header for Products page */}
+              
 
       </Header>
 
@@ -149,7 +205,7 @@ const Products = () => {
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              <Search color="primary" />
+              <Search color="primary"></Search>
             </InputAdornment>
           ),
         }}
@@ -173,16 +229,17 @@ const Products = () => {
               </Box> 
            ) :
            <> 
-            <Grid container className="product-grid" spacing={2}>
+            <Grid container className="product-grid" spacing={2} paddingX={2} paddingY={5} >
                {
-                  productsList?
+                  productsList.length > 0 ?
                   <>
                     {
                       productsList.map((product)=>{
                         return(
-                          <Grid item md={3} xs={6}>
+                          <Grid item md={3} xs={6} key={product._id}>
                           <ProductCard 
                             product={product}
+                            handleAddToCart={() => {}}
                             />
                           </Grid>
                         )
@@ -190,9 +247,9 @@ const Products = () => {
                     }
                   </>
                   : 
-                  <>
-                    <p>I m here</p>
-                  </>
+                  <Box display="flex" alignItems="center" justify-content="center">
+                    <p> No products found</p><SentimentDissatisfied />
+                  </Box>
                 }
                   
             </Grid>

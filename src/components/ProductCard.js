@@ -25,6 +25,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
             className="card-button" 
             fullWidth 
             variant="contained" 
+            name="addtocart"
             startIcon={<AddShoppingCartOutlined/>} 
             onClick={handleAddToCart} >
               ADD TO CART 

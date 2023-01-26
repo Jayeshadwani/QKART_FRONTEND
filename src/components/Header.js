@@ -43,11 +43,17 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
     else
     {
       return(
+      <>
         <Box className="header">
           <Box className="header-title">
               <img src="logo_light.svg" alt="QKart-icon" />
           </Box>
-          <Stack direction="row" spacing={1} alignItems="center"> 
+
+          
+          {children} 
+          
+          
+          <Stack direction="row" spacing={1} alignItems="center">
           { username ? 
           <>
               <Avatar src="avatar.png" alt={localStorage.getItem("username") || "profile" } / > 
@@ -55,7 +61,7 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
               <Button
               variant="text"
               onClick={handleLogOut}
-              >LOGOUT
+              > LOGOUT
               </Button>
           </>
           : <>
@@ -72,7 +78,8 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
               </Button>
             </> }
           </Stack> 
-        </Box>
+          </Box>
+        </>
       )
       
     }
