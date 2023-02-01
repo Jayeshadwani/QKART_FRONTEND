@@ -18,7 +18,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
         <CardContent >
           <Typography>{product.name}</Typography>
           <Typography paddingY="1rem" fontWeight="700">${product.cost}</Typography>
-          <Rating readOnly precision={0.5} value={product.rating} name="rating"></Rating>
+          <Rating readOnly precision={0.5} value={product.rating} aria-label="stars" name="rating"></Rating>
         </CardContent>
         <CardActions className="card-actions">
           <Button

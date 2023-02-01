@@ -10,9 +10,6 @@ import Header from "./Header";
 import "./Login.css";
 
 
-
-
-
 const Login = () => {
   const { enqueueSnackbar } = useSnackbar();
   
@@ -78,14 +75,14 @@ const Login = () => {
       catch(e)
       {
         setLoading(false)
-        if(e.response &&e.response.status === 400)
+        if(e.response && e.response.status === 400)
         {
           enqueueSnackbar(e.response.data.message,{varaint:"error"})
         }
         else
         {
           enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
-          {varaint:"success"})
+          {varaint:"error"})
         }
 
       }      

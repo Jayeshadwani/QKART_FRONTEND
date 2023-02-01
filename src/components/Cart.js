@@ -47,7 +47,45 @@ import "./Cart.css";
  *    Array of objects with complete data on products in cart
  *
  */
-export const generateCartItemsFrom = (cartData, productsData) => {
+
+
+export const generateCartItemsFrom = (cartData, productsData) => 
+{
+  // recieves cartData and productsData to return complete data on items in cart
+  // like product name,category, cost, rating, image, id, quantity
+  // find products with id in productsData from cartData
+  // then push required data from both the arrays into newly created one
+  // return it....
+
+  let cartItems = []
+  
+  if(cartData)
+  {
+    for( let i=0;i<cartData.length;i++)
+    {
+      if(cartData[i].qty === 0) continue;
+
+      for(let j=0;j<productsData.length;j++)
+      {
+        if(productsData[j]._id === cartData[i].productId)
+        {
+          const item = {
+            id : productsData[j]._id,
+            qty : cartData[i].qty,
+            name : productsData[j].name,
+            category : productsData[j].category,
+            cost : productsData[j].cost,
+            rating : productsData[j].rating,
+            image : productsData[j].image
+          }
+          cartItems.push(item)
+        }
+      }
+    }  
+  }
+
+  return cartItems;  
+
 };
 
 /**
@@ -61,6 +99,13 @@ export const generateCartItemsFrom = (cartData, productsData) => {
  *
  */
 export const getTotalCartValue = (items = []) => {
+  let total = 0;
+
+  items.forEach(item => {
+    total += (item.cost * item.qty)
+  })
+  
+  return total
 };
 
 
@@ -98,6 +143,9 @@ const ItemQuantity = ({
   );
 };
 
+
+
+
 /**
  * Component to display the Cart view
  * 
@@ -112,11 +160,15 @@ const ItemQuantity = ({
  * 
  * 
  */
+
+
 const Cart = ({
   products,
   items = [],
-  handleQuantity,
+  handleQuantity
 }) => {
+  const history = useHistory()
+  const token = localStorage.getItem("token")
 
   if (!items.length) {
     return (
@@ -128,12 +180,49 @@ const Cart = ({
       </Box>
     );
   }
-
   return (
     <>
-      <Box className="cart">
+      <Box className="cart" key="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
-        <Box
+
+        { items.map( (item) => { return (                  
+              <Box display="flex" alignItems="flex-start" padding="1rem">
+                  <Box className="image-container">
+                      <img
+                          // Add product image
+                          src={item.image}
+                          // Add product name as alt eext
+                          alt={item.name}
+                          width="100%"
+                          height="100%"
+                      />
+                  </Box>
+                  <Box
+                      display="flex"
+                      flexDirection="column"
+                      justifyContent="space-between"
+                      height="6rem"
+                      paddingX="1rem"
+                  >
+                      <div>{item.name}</div>
+                      <Box
+                          display="flex"
+                          justifyContent="space-between"
+                          alignItems="center"
+                      >
+                      <ItemQuantity
+                        value={item.qty} 
+                        handleAdd={async () => await handleQuantity(token,items,products,item.id,item.qty+1,{preventDuplicate:false})} 
+                        handleDelete={async () => await handleQuantity(token,items,products,item.id,item.qty-1,{preventDuplicate:false})}
+                      />
+                      <Box padding="0.5rem" fontWeight="700">
+                          ${item.cost}
+                      </Box>
+                      </Box>
+                  </Box>
+              </Box>         
+        )})}
+        <Box 
           padding="1rem"
           display="flex"
           justifyContent="space-between"
@@ -157,8 +246,11 @@ const Cart = ({
           <Button
             color="primary"
             variant="contained"
+            onClick={ () => history.push("/checkout")}
             startIcon={<ShoppingCart />}
             className="checkout-btn"
+            aria-label="checkout"
+            name="checkout"
           >
             Checkout
           </Button>
