@@ -201,6 +201,7 @@ const Checkout = () => {
   const getAddresses = async (token) => {
     if (!token){
       enqueueSnackbar("You must be logged in to access checkout page",{varaint:"warning"})
+      history.push("/login")
       return;
     }
 
