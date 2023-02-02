@@ -18,6 +18,22 @@
     padding: 2rem 1rem;
 }
 
+.order{
+    padding: 25px 25px;
+    background-color: #E9F5E1;
+    min-width: 21vw;
+    /* border-radius: 4px; */
+    /* margin: 0.5rem; */
+}
+
+.order-row{
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .selected {
     border: 1px solid #00A278;
     background-color: #E9F5E1;

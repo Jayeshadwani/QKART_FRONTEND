@@ -384,7 +384,7 @@ const addToCart = async (
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              <Search color="primary"></Search>
+              <Search color="primary" />
             </InputAdornment>
           ),
         }}

@@ -121,25 +121,34 @@ export const getTotalCartValue = (items = []) => {
  * @param {Function} handleDelete
  *    Handler function which reduces the quantity of a product in cart by 1
  * 
+ * @param {Boolean} isReadOnly
+ *    If product quantity on cart is to be displayed as read only without the + - options to change quantity
  * 
  */
 const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  readOnly
 }) => {
   return (
-    <Stack direction="row" alignItems="center">
-      <IconButton size="small" color="primary" onClick={handleDelete}>
-        <RemoveOutlined />
-      </IconButton>
-      <Box padding="0.5rem" data-testid="item-qty">
-        {value}
-      </Box>
-      <IconButton size="small" color="primary" onClick={handleAdd}>
-        <AddOutlined />
-      </IconButton>
-    </Stack>
+    <>
+    { !readOnly ? 
+      <Stack direction="row" alignItems="center">
+        <IconButton size="small" color="primary" onClick={handleDelete}>
+          <RemoveOutlined />
+        </IconButton>
+        <Box padding="0.5rem" data-testid="item-qty">
+          {value}
+        </Box>
+        <IconButton size="small" color="primary" onClick={handleAdd}>
+          <AddOutlined />
+        </IconButton>
+      </Stack>
+     : <Box padding="0.5rem" data-testid="item-qty" className="cart-row">
+       <h4>Qty</h4> : {value}
+      </Box> }
+    </>
   );
 };
 
@@ -165,7 +174,8 @@ const ItemQuantity = ({
 const Cart = ({
   products,
   items = [],
-  handleQuantity
+  handleQuantity,
+  readOnly,
 }) => {
   const history = useHistory()
   const token = localStorage.getItem("token")
@@ -210,11 +220,15 @@ const Cart = ({
                           justifyContent="space-between"
                           alignItems="center"
                       >
-                      <ItemQuantity
+                        
+                        <ItemQuantity
                         value={item.qty} 
                         handleAdd={async () => await handleQuantity(token,items,products,item.id,item.qty+1,{preventDuplicate:false})} 
                         handleDelete={async () => await handleQuantity(token,items,products,item.id,item.qty-1,{preventDuplicate:false})}
-                      />
+                        readOnly={readOnly}
+                        />
+                        
+                      
                       <Box padding="0.5rem" fontWeight="700">
                           ${item.cost}
                       </Box>
@@ -241,20 +255,21 @@ const Cart = ({
             ${getTotalCartValue(items)}
           </Box>
         </Box>
-
-        <Box display="flex" justifyContent="flex-end" className="cart-footer">
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={ () => history.push("/checkout")}
-            startIcon={<ShoppingCart />}
-            className="checkout-btn"
-            aria-label="checkout"
-            name="checkout"
-          >
-            Checkout
-          </Button>
-        </Box>
+          {!readOnly ?
+          <Box display="flex" justifyContent="flex-end" className="cart-footer">
+            <Button
+              color="primary"
+              variant="contained"
+              onClick={ () => history.push("/checkout")}
+              startIcon={<ShoppingCart />}
+              className="checkout-btn"
+              aria-label="checkout"
+              name="checkout"
+            >
+              Checkout
+            </Button>
+          </Box> : null }
+        
       </Box>
     </>
   );
